@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat</title>
+</head>
+<body>
+    <h1>Real-Time Chat</h1>
+    <div id="messages"></div>
+    <div id="users"></div>
+    <input type="text" id="messageInput" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function joinRoom() {
+            var username = prompt("Enter your username:");
+            var room = prompt("Enter the room ID:");
+
+            socket.emit('join', {'username': username, 'room': room});
+        }
+
+        function leaveRoom() {
+            var username = prompt("Enter your username:");
+            var room = prompt("Enter the room ID:");
+
+            socket.emit('leave', {'username': username, 'room': room});
+        }
+
+        function sendMessage() {
+            var username = prompt("Enter your username:");
+            var room = prompt("Enter the room ID:");
+            var message = document.getElementById('messageInput').value;
+
+            socket.emit('message', {'username': username, 'room': room, 'message': message});
+        }
+
+        socket.on('update_users', function(data) {
+            document.getElementById('users').innerHTML = "Active Users: " + data.users.join(', ');
+        });
+
+        socket.on('message', function(data) {
+            document.getElementById('messages').innerHTML += data.username + ": " + data.message + "<br>";
+        });
+    </script>
+</body>
+</html>
